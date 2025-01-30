@@ -7,10 +7,10 @@ import (
 
 func home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
-    http.NotFound(w, r)
-    return
-  }
-  w.Write([]byte("Hello niggha"))
+		http.NotFound(w, r)
+		return
+	}
+	w.Write([]byte("Hello niggha"))
 
 }
 
@@ -19,12 +19,13 @@ func showSnippet(w http.ResponseWriter, r *http.Request) {
 }
 
 func createSnippet(w http.ResponseWriter, r *http.Request) {
-  if r.Method != "POST" {
-    w.WriteHeader(405)
-    w.Write([]byte("Method not Allowed"))
-    return
-  }
-  
+	if r.Method != "POST" {
+		w.Header().Set("Allow", "POST")
+		w.WriteHeader(405)
+		w.Write([]byte("Method not Allowed"))
+		return
+	}
+
 	w.Write([]byte("Create a new snippet..."))
 }
 
@@ -38,4 +39,3 @@ func main() {
 	err := http.ListenAndServe(":6000", mux)
 	log.Fatal(err)
 }
-
