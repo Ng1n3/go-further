@@ -6,6 +6,8 @@ import (
 	"runtime/debug"
 )
 
+
+
 func (app *application) serveError(w http.ResponseWriter, err error) {
 	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
 
