@@ -49,7 +49,8 @@ func (m *SnippetModel) Get(id int) (*models.Snippet, error) {
 	// columns returned by your statement. If the query returns no rows, then
 	// row.Scan() will return a sql.ErrNoRows error. We check for that and retu
 	// our own models.ErrNoRecord error instead of a Snippet object
-	err := m.DB.QueryRow("SELECT ...", id).Scan(&s.ID, &s.Title, &s.Content, &s.Created_at, &s.Expires)
+	// err := m.DB.QueryRow("SELECT ...", id).Scan(&s.ID, &s.Title, &s.Content, &s.Created_at, &s.Expires)
+	err := m.DB.QueryRow("SELECT id, title, content, created_at, expires FROM snippets WHERE expires > UTC_TIMESTAMP() AND id = ?", id).Scan(&s.ID, &s.Title, &s.Content, &s.Created_at, &s.Expires)
 	if err == sql.ErrNoRows {
 		return nil, models.ErrNoRecord
 	} else if err != nil {
@@ -68,5 +69,33 @@ datastore-specific errors for its behavior.
 
 // This will return the 10 most recently created snippets.
 func (m *SnippetModel) Latest() ([]*models.Snippet, error) {
-	return nil, nil
+
+	stmt := `SELECT id, title, content, created_at, expires FROM snippets
+  WHERE expires > UTC_TIMESTAMP() ORDER BY created_at DESC LIMIT 10`
+
+	rows, err := m.DB.Query(stmt)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	snippets := []*models.Snippet{}
+
+	for rows.Next() {
+		s := &models.Snippet{}
+
+		err = rows.Scan(&s.ID, &s.Title, &s.Content, &s.Created_at, &s.Expires)
+		if err != nil {
+			return nil, err
+		}
+		// Append it to the slice of snippets.
+		snippets = append(snippets, s)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return snippets, nil
 }

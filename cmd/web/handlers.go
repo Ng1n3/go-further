@@ -10,12 +10,43 @@ import (
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
+	// for _, snippet := range s {
+	// 	fmt.Fprintf(w, "%s\n", snippet)
+	// }
+
+	// id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	// if err != nil || id < 1 {
+	// 	app.notFound(w)
+	// 	return
+	// }
+
+	// s, err := app.snippets.Get(id)
+
+	// if err == models.ErrNoRecord {
+	// 	app.notFound(w)
+	// 	return
+	// } else if err != nil {
+	// 	app.serveError(w, err)
+	// 	return
+	// }
+
 	if r.URL.Path != "/" {
 		app.notFound(w)
 		return
 	}
 
+	s, err := app.snippets.Latest()
+	if err != nil {
+		app.serveError(w, err)
+		return
+	}
+
+	// Create an instance of a templateData struct holding the slice of
+	// Snippts.
+	data := &templateData{Snippets: s}
+
 	files := []string{
+		"./ui/html/show.page.tmpl",
 		"./ui/html/home.page.tmpl",
 		"./ui/html/base.layout.tmpl",
 		"./ui/html/footer.partial.tmpl",
@@ -27,9 +58,9 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/html; charsest=utf-8")
+	// w.Header().Set("Content-Type", "text/html; charsest=utf-8")
 
-	err = ts.Execute(w, nil)
+	err = ts.Execute(w, data)
 	if err != nil {
 		app.serveError(w, err)
 	}
@@ -50,6 +81,25 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 	} else if err != nil {
 		app.serveError(w, err)
 		return
+	}
+
+	data := &templateData{Snippet: s}
+
+	files := []string{
+		"./ui/html/show.page.tmpl",
+		"./ui/html/base.layout.tmpl",
+		"./ui/html/footer.partial.tmpl",
+	}
+
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		app.serveError(w, err)
+		return
+	}
+
+	err = ts.Execute(w, data)
+	if err != nil {
+		app.serveError(w, err)
 	}
 
 	// fmt.Fprintf(w, "Display a specific snippet with ID %d... ", id)
