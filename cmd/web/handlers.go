@@ -86,7 +86,6 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
 	app.render(w, r, "show.page.tmpl", &templateData{Snippet: s})
 
 	// data := &templateData{Snippet: s, CurrentYear: time.Now().Year()}
@@ -112,17 +111,44 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 	// fmt.Fprintf(w, "%s", s)
 }
 
+// func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
+// 	// if r.Method != "POST" {
+// 	// 	w.Header().Set("Allow", "POST")
+// 	// 	app.clientError(w, http.StatusMethodNotAllowed)
+// 	// 	return
+// 	// }
+
+// 	title := "O Saviour"
+// 	content := "O snail\nClimb Mount Fuji,\nBut slowly, slowly!\n\n– Kobayashi"
+// 	expires := "5"
+
+// 	id, err := app.snippets.Insert(title, content, expires)
+// 	if err != nil {
+// 		app.serveError(w, err)
+// 		return
+// 	}
+
+// 	http.Redirect(w, r, fmt.Sprintf("/snippet/%d", id), http.StatusSeeOther)
+
+// 	// w.Write([]byte("Create a new snippet..."))
+// }
+
+func (app *application) createSnippetForm(w http.ResponseWriter, r *http.Request) {
+	app.render(w, r, "create.page.tmpl", nil)
+}
+
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
-	// if r.Method != "POST" {
-	// 	w.Header().Set("Allow", "POST")
-	// 	app.clientError(w, http.StatusMethodNotAllowed)
-	// 	return
-	// }
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
 
-	title := "O Saviour"
-	content := "O snail\nClimb Mount Fuji,\nBut slowly, slowly!\n\n– Kobayashi"
-	expires := "5"
+	title := r.PostForm.Get("title")
+	content := r.PostForm.Get("content")
+	expires := r.PostForm.Get("expires")
 
+	// Insert paresed form into the databae
 	id, err := app.snippets.Insert(title, content, expires)
 	if err != nil {
 		app.serveError(w, err)
@@ -130,10 +156,4 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, fmt.Sprintf("/snippet/%d", id), http.StatusSeeOther)
-
-	// w.Write([]byte("Create a new snippet..."))
-}
-
-func (app *application) createSnippetForm(w http.ResponseWriter, r *http.Request) {
-	app.render(w, r, "create.page.tmpl", nil)
 }
