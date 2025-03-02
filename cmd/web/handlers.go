@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	// "text/template"
-	"time"
+	// "time"
 
 	"github.com/Ng1n3/go-further/pkg/models"
 )
@@ -71,7 +71,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	id, err := strconv.Atoi(r.URL.Query().Get(":id"))
 	if err != nil || id < 1 {
 		app.notFound(w)
 		return
@@ -86,10 +86,10 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.render(w, r, "show.page.tmpl", &templateData{Snippet: s, CurrentYear: time.Now().Year()})
+
+	app.render(w, r, "show.page.tmpl", &templateData{Snippet: s})
 
 	// data := &templateData{Snippet: s, CurrentYear: time.Now().Year()}
-
 	// files := []string{
 	// 	"./ui/html/show.page.tmpl",
 	// 	"./ui/html/base.layout.tmpl",
@@ -113,11 +113,11 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		w.Header().Set("Allow", "POST")
-		app.clientError(w, http.StatusMethodNotAllowed)
-		return
-	}
+	// if r.Method != "POST" {
+	// 	w.Header().Set("Allow", "POST")
+	// 	app.clientError(w, http.StatusMethodNotAllowed)
+	// 	return
+	// }
 
 	title := "O Saviour"
 	content := "O snail\nClimb Mount Fuji,\nBut slowly, slowly!\n\n– Kobayashi"
@@ -129,7 +129,11 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, fmt.Sprintf("/snippet?id=%d", id), http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/snippet/%d", id), http.StatusSeeOther)
 
 	// w.Write([]byte("Create a new snippet..."))
+}
+
+func (app *application) createSnippetForm(w http.ResponseWriter, r *http.Request) {
+	app.render(w, r, "create.page.tmpl", nil)
 }
