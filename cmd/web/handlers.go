@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+
 	// "text/template"
 	"time"
 
@@ -31,10 +32,10 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	// 	return
 	// }
 
-	if r.URL.Path != "/" {
-		app.notFound(w)
-		return
-	}
+	// if r.URL.Path != "/" {
+	// 	app.notFound(w)
+	// 	return
+	// }
 
 	s, err := app.snippets.Latest()
 	if err != nil {
@@ -85,7 +86,9 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := &templateData{Snippet: s, CurrentYear: time.Now().Year()}
+	app.render(w, r, "show.page.tmpl", &templateData{Snippet: s, CurrentYear: time.Now().Year()})
+
+	// data := &templateData{Snippet: s, CurrentYear: time.Now().Year()}
 
 	// files := []string{
 	// 	"./ui/html/show.page.tmpl",
@@ -94,19 +97,19 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 	// }
 
 	// ts, err := template.ParseFiles(files...)
-	ts, ok := app.templateCache["show.page.tmpl"]
-	if !ok {
-		app.serveError(w, err)
-		return
-	}
+	// ts, ok := app.templateCache["show.page.tmpl"]
+	// if !ok {
+	// 	app.serveError(w, err)
+	// 	return
+	// }
 
-	err = ts.Execute(w, data)
-	if err != nil {
-		app.serveError(w, err)
-	}
+	// err = ts.Execute(w, data)
+	// if err != nil {
+	// 	app.serveError(w, err)
+	// }
 
 	// fmt.Fprintf(w, "Display a specific snippet with ID %d... ", id)
-	fmt.Fprintf(w, "%s", s)
+	// fmt.Fprintf(w, "%s", s)
 }
 
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
