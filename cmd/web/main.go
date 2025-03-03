@@ -21,6 +21,7 @@ type application struct {
 	snippets      *mysql.SnippetModel
 	session       *sessions.Session
 	templateCache map[string]*template.Template
+	users         *mysql.UserModel
 }
 
 func main() {
@@ -55,6 +56,7 @@ func main() {
 		snippets:      &mysql.SnippetModel{DB: db},
 		session:       session,
 		templateCache: templateCache,
+		users: &mysql.UserModel{DB: db},
 	}
 
 	// Initialize a tls.Config struct to hold the non-default TLS settings we want the server to usse
@@ -76,7 +78,7 @@ func main() {
 	infoLog.Printf("Starting server on %s", *addr)
 	err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
 	errorLog.Fatal(err)
-} 
+}
 
 func openDB(dsn string) (*sql.DB, error) {
 	db, err := sql.Open("mysql", dsn)
