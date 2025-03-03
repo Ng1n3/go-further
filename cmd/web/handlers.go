@@ -86,7 +86,9 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		app.serveError(w, err)
 		return
 	}
+	//  flash := app.session.PopString(r, "flash" )
 
+	// app.render(w, r, "show.page.tmpl", &templateData{Flash: flash, Snippet: s})
 	app.render(w, r, "show.page.tmpl", &templateData{Snippet: s})
 
 	// data := &templateData{Snippet: s, CurrentYear: time.Now().Year()}
@@ -162,6 +164,10 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 		app.serveError(w, err)
 		return
 	}
+
+	// Use the Put() mtehod to add a string value and corresponding key to the session data. NOte that if there's no existing session for the current user then a new, empty, session for them will authomatically be created by the session middleware.
+
+	app.session.Put(r, "flash", "Snippet successfully created!")
 
 	http.Redirect(w, r, fmt.Sprintf("/snippet/%d", id), http.StatusSeeOther)
 

@@ -14,6 +14,7 @@ type templateData struct {
 	// FormData    url.Values
 	// FormErrors  map[string]string
 	Form     *forms.Form
+  Flash string
 	Snippet  *models.Snippet
 	Snippets []*models.Snippet
 }
