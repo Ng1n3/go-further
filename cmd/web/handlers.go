@@ -221,3 +221,21 @@ than the number of bytes. To illustrate the difference, the string "Zoë"
 has 3 characters but a length of 4 bytes because of the umlauted ë
 character.
 */
+
+func (app *application) signupUserForm(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "display user signup form...")
+}
+
+func (app *application) signupuser(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "display user login form")
+}
+
+func (app *application) loginUserForm(w http.ResponseWriter, r*http.Request) {
+	fmt.Fprintf(w, "authenticate and login user...")
+}
+
+func (app *application) logoutUser(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Logging out the user....")
+}
+
+
