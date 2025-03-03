@@ -5,13 +5,17 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/Ng1n3/go-further/pkg/forms"
 	"github.com/Ng1n3/go-further/pkg/models"
 )
 
 type templateData struct {
 	CurrentYear int
-	Snippet     *models.Snippet
-	Snippets    []*models.Snippet
+	// FormData    url.Values
+	// FormErrors  map[string]string
+	Form     *forms.Form
+	Snippet  *models.Snippet
+	Snippets []*models.Snippet
 }
 
 func newTemplateCache(dir string) (map[string]*template.Template, error) {

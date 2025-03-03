@@ -8,6 +8,7 @@ import (
 	// "text/template"
 	// "time"
 
+	"github.com/Ng1n3/go-further/pkg/forms"
 	"github.com/Ng1n3/go-further/pkg/models"
 )
 
@@ -134,7 +135,9 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 // }
 
 func (app *application) createSnippetForm(w http.ResponseWriter, r *http.Request) {
-	app.render(w, r, "create.page.tmpl", nil)
+	app.render(w, r, "create.page.tmpl", &templateData{
+		Form: forms.New(nil),
+	})
 }
 
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
@@ -144,16 +147,71 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	title := r.PostForm.Get("title")
-	content := r.PostForm.Get("content")
-	expires := r.PostForm.Get("expires")
+	form := forms.New(r.PostForm)
+	form.Required("title", "content", "expires")
+	form.MaxLength("title", 100)
+	form.PermittedValues("expires", "365", "7", "1")
 
-	// Insert paresed form into the databae
-	id, err := app.snippets.Insert(title, content, expires)
+	if !form.Valid() {
+		app.render(w, r, "create.page.tmpl", &templateData{Form: form})
+		return
+	}
+
+	id, err := app.snippets.Insert(form.Get("title"), form.Get("content"), form.Get("expires"))
 	if err != nil {
 		app.serveError(w, err)
 		return
 	}
 
 	http.Redirect(w, r, fmt.Sprintf("/snippet/%d", id), http.StatusSeeOther)
+
+	// title := r.PostForm.Get("title")
+	// content := r.PostForm.Get("content")
+	// expires := r.PostForm.Get("expires")
+
+	// errors := make(map[string]string)
+
+	// if strings.TrimSpace(title) == "" {
+	// 	errors["title"] = "This field cannot be blank"
+	// } else if utf8.RuneCountInString(title) > 100 {
+	// 	errors["title"] = "This field is too long (maximum is 100 characters)"
+	// } else if utf8.RuneCountInString(title) < 3 {
+	// 	errors["title"] = "This field is too small (minimum is 3 characters)"
+	// }
+
+	// if strings.TrimSpace(content) == "" {
+	// 	errors["content"] = "This field cannot be blank"
+	// }
+
+	// if strings.TrimSpace(expires) == "" {
+	// 	errors["expires"] = "This field cannot be blank"
+	// } else if expires != "365" && expires != "7" && expires != "1" {
+	// 	errors["expires"] = "This field is invalid"
+	// }
+
+	// if len(errors) > 0 {
+	// 	app.render(w, r, "create.page.tmpl", &templateData{
+	// 		FormErrors: errors,
+	// 		FormData:   r.PostForm,
+	// 	})
+	// 	return
+	// }
+
+	// // Insert paresed form into the databae
+	// id, err := app.snippets.Insert(title, content, expires)
+	// if err != nil {
+	// 	app.serveError(w, err)
+	// 	return
+	// }
+
+	// http.Redirect(w, r, fmt.Sprintf("/snippet/%d", id), http.StatusSeeOther)
 }
+
+/*
+Note: When we check the length of the title field, we’re using the
+utf8.RuneCount() function — not the builtin len() function. This is
+because we want to count the number of characters in the title rather
+than the number of bytes. To illustrate the difference, the string "Zoë"
+has 3 characters but a length of 4 bytes because of the umlauted ë
+character.
+*/
