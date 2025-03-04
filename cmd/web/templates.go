@@ -10,11 +10,12 @@ import (
 )
 
 type templateData struct {
-	CurrentYear int
+	AuthenticatedUser int
+	CurrentYear       int
 	// FormData    url.Values
 	// FormErrors  map[string]string
 	Form     *forms.Form
-  Flash string
+	Flash    string
 	Snippet  *models.Snippet
 	Snippets []*models.Snippet
 }
