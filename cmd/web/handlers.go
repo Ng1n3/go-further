@@ -223,19 +223,19 @@ character.
 */
 
 func (app *application) signupUserForm(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "display user signup form...")
+	app.render(w, r, "signup.page.tmpl", &templateData{
+		Form: forms.New(nil),
+	})
 }
 
 func (app *application) signupuser(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "display user login form")
 }
 
-func (app *application) loginUserForm(w http.ResponseWriter, r*http.Request) {
+func (app *application) loginUserForm(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "authenticate and login user...")
 }
 
 func (app *application) logoutUser(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Logging out the user....")
 }
-
-
