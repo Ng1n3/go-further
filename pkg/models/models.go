@@ -7,6 +7,7 @@ import (
 )
 
 var ErrNoRecord = errors.New("models: no matching record found")
+var ErrDuplicateEmail = errors.New("models: duplicate email, email exists already")
 
 type Snippet struct {
 	ID         int
