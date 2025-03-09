@@ -10,7 +10,7 @@ import (
 )
 
 type templateData struct {
-	AuthenticatedUser int
+	AuthenticatedUser *models.User
 	CurrentYear       int
 	CSRFToken	string
 	// FormData    url.Values
