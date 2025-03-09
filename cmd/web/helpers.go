@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"runtime/debug"
 	"time"
+
+	"github.com/justinas/nosurf"
 )
 
 func (app *application) serveError(w http.ResponseWriter, err error) {
@@ -35,6 +37,7 @@ func (app *application) addDefaultData(td *templateData, r *http.Request) *templ
 	}
 	td.CurrentYear = time.Now().Year()
 	td.Flash = app.session.PopString(r, "flash")
+	td.CSRFToken = nosurf.Token(r)
 	td.AuthenticatedUser = app.authenticatedUser(r)
 	return td
 }
@@ -67,19 +70,5 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, name stri
 	// takes an io.Writer.
 	buf.WriteTo(w)
 
-	// Retrieve the appropriate template set from the cache based on the page n
-	// (like 'home.page.tmpl'). If no entry exists in the cache with the
-	// provided name, call the serverError helper method that we made earlier.
-	// ts, ok := app.templateCache[name]
-	// if !ok {
-	// 	app.serveError(w, fmt.Errorf("the template %s does not exist", name))
-	// 	return
-	// }
-
-	//Execute the template set, passing in any dynamic data.
-	// err := ts.Execute(w, td)
-	// if err != nil {
-	// 	app.serveError(w, err)
-	// }
 
 }

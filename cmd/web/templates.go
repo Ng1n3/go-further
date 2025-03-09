@@ -12,6 +12,7 @@ import (
 type templateData struct {
 	AuthenticatedUser int
 	CurrentYear       int
+	CSRFToken	string
 	// FormData    url.Values
 	// FormErrors  map[string]string
 	Form     *forms.Form
