@@ -12,61 +12,17 @@ import (
 	"github.com/Ng1n3/go-further/pkg/models"
 )
 
+func ping(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("OK"))
+}
+
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	// for _, snippet := range s {
-	// 	fmt.Fprintf(w, "%s\n", snippet)
-	// }
-
-	// id, err := strconv.Atoi(r.URL.Query().Get("id"))
-	// if err != nil || id < 1 {
-	// 	app.notFound(w)
-	// 	return
-	// }
-
-	// s, err := app.snippets.Get(id)
-
-	// if err == models.ErrNoRecord {
-	// 	app.notFound(w)
-	// 	return
-	// } else if err != nil {
-	// 	app.serveError(w, err)
-	// 	return
-	// }
-
-	// if r.URL.Path != "/" {
-	// 	app.notFound(w)
-	// 	return
-	// }
 
 	s, err := app.snippets.Latest()
 	if err != nil {
 		app.serveError(w, err)
 		return
 	}
-
-	// Create an instance of a templateData struct holding the slice of
-	// Snippts.
-	// data := &templateData{Snippets: s}
-
-	// files := []string{
-	// 	"./ui/html/show.page.tmpl",
-	// 	"./ui/html/home.page.tmpl",
-	// 	"./ui/html/base.layout.tmpl",
-	// 	"./ui/html/footer.partial.tmpl",
-	// }
-
-	// ts, err := template.ParseFiles(files...)
-	// if err != nil {
-	// 	app.serveError(w, err)
-	// 	return
-	// }
-
-	// // w.Header().Set("Content-Type", "text/html; charsest=utf-8")
-
-	// err = ts.Execute(w, data)
-	// if err != nil {
-	// 	app.serveError(w, err)
-	// }
 
 	app.render(w, r, "home.page.tmpl", &templateData{Snippets: s})
 }
@@ -86,55 +42,9 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		app.serveError(w, err)
 		return
 	}
-	//  flash := app.session.PopString(r, "flash" )
 
-	// app.render(w, r, "show.page.tmpl", &templateData{Flash: flash, Snippet: s})
 	app.render(w, r, "show.page.tmpl", &templateData{Snippet: s})
-
-	// data := &templateData{Snippet: s, CurrentYear: time.Now().Year()}
-	// files := []string{
-	// 	"./ui/html/show.page.tmpl",
-	// 	"./ui/html/base.layout.tmpl",
-	// 	"./ui/html/footer.partial.tmpl",
-	// }
-
-	// ts, err := template.ParseFiles(files...)
-	// ts, ok := app.templateCache["show.page.tmpl"]
-	// if !ok {
-	// 	app.serveError(w, err)
-	// 	return
-	// }
-
-	// err = ts.Execute(w, data)
-	// if err != nil {
-	// 	app.serveError(w, err)
-	// }
-
-	// fmt.Fprintf(w, "Display a specific snippet with ID %d... ", id)
-	// fmt.Fprintf(w, "%s", s)
 }
-
-// func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
-// 	// if r.Method != "POST" {
-// 	// 	w.Header().Set("Allow", "POST")
-// 	// 	app.clientError(w, http.StatusMethodNotAllowed)
-// 	// 	return
-// 	// }
-
-// 	title := "O Saviour"
-// 	content := "O snail\nClimb Mount Fuji,\nBut slowly, slowly!\n\n– Kobayashi"
-// 	expires := "5"
-
-// 	id, err := app.snippets.Insert(title, content, expires)
-// 	if err != nil {
-// 		app.serveError(w, err)
-// 		return
-// 	}
-
-// 	http.Redirect(w, r, fmt.Sprintf("/snippet/%d", id), http.StatusSeeOther)
-
-// 	// w.Write([]byte("Create a new snippet..."))
-// }
 
 func (app *application) createSnippetForm(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, "create.page.tmpl", &templateData{
@@ -170,47 +80,6 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 	app.session.Put(r, "flash", "Snippet successfully created!")
 
 	http.Redirect(w, r, fmt.Sprintf("/snippet/%d", id), http.StatusSeeOther)
-
-	// title := r.PostForm.Get("title")
-	// content := r.PostForm.Get("content")
-	// expires := r.PostForm.Get("expires")
-
-	// errors := make(map[string]string)
-
-	// if strings.TrimSpace(title) == "" {
-	// 	errors["title"] = "This field cannot be blank"
-	// } else if utf8.RuneCountInString(title) > 100 {
-	// 	errors["title"] = "This field is too long (maximum is 100 characters)"
-	// } else if utf8.RuneCountInString(title) < 3 {
-	// 	errors["title"] = "This field is too small (minimum is 3 characters)"
-	// }
-
-	// if strings.TrimSpace(content) == "" {
-	// 	errors["content"] = "This field cannot be blank"
-	// }
-
-	// if strings.TrimSpace(expires) == "" {
-	// 	errors["expires"] = "This field cannot be blank"
-	// } else if expires != "365" && expires != "7" && expires != "1" {
-	// 	errors["expires"] = "This field is invalid"
-	// }
-
-	// if len(errors) > 0 {
-	// 	app.render(w, r, "create.page.tmpl", &templateData{
-	// 		FormErrors: errors,
-	// 		FormData:   r.PostForm,
-	// 	})
-	// 	return
-	// }
-
-	// // Insert paresed form into the databae
-	// id, err := app.snippets.Insert(title, content, expires)
-	// if err != nil {
-	// 	app.serveError(w, err)
-	// 	return
-	// }
-
-	// http.Redirect(w, r, fmt.Sprintf("/snippet/%d", id), http.StatusSeeOther)
 }
 
 /*
@@ -290,7 +159,7 @@ func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) logoutUser(w http.ResponseWriter, r *http.Request) {
 	app.session.Remove(r, "userID")
-	
+
 	app.session.Put(r, "flash", "You've been logged out successfully")
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
