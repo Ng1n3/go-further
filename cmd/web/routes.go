@@ -25,19 +25,10 @@ func (app *application) routes() http.Handler {
 	mux.Post("/user/login", dynamicMiddleware.ThenFunc(app.loginUser))
 	mux.Post("/user/logout", dynamicMiddleware.Append(app.requireAuthenticatedUser).ThenFunc(app.logoutUser))
 
+	mux.Get("/ping", http.HandlerFunc(ping))
+
 	fileServer := http.FileServer(http.Dir("./ui/static"))
 	mux.Get("/static/", http.StripPrefix("/static", fileServer))
 
 	return standaredMiddleware.Then(mux)
-
-	// mux.Get("/", http.HandlerFunc(app.home))
-	// mux.Get("/snippet/create", http.HandlerFunc(app.createSnippetForm))
-	// mux.Post("/snippet/create", http.HandlerFunc(app.createSnippet))
-	// mux.Get("/snippet/:id", http.HandlerFunc(app.showSnippet))
-	// mux := http.NewServeMux()
-	// mux.HandleFunc("/", app.home)
-	// mux.HandleFunc("/snippet", app.showSnippet)
-	// mux.HandleFunc("/snippet/create", app.createSnippet)
-	// mux.Handle("/static/", http.StripPrefix("/static", fileServer))
-	// return app.recoverPanic(app.logRequest(secureHeaders(mux)))
 }
