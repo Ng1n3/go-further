@@ -1,11 +1,13 @@
 package main
 
 import (
+	"html"
 	"io"
 	"log"
 	"net/http"
 	"net/http/cookiejar"
 	"net/http/httptest"
+	"regexp"
 	"testing"
 	"time"
 
@@ -75,4 +77,17 @@ func (ts *testServer) get(t *testing.T, urlPath string) (int, http.Header, []byt
 	}
 
 	return rs.StatusCode, rs.Header, body
+}
+
+//? Define a regular expression which captures the CSRF token value from the HTML for our user signup page.
+var csrfTokenRX = regexp.MustCompile(`<input type='hidden' name='csrf_token' value='([^']+)'/>`)
+
+func extractCSRFToken(t *testing.T, body []byte) string {
+  //? use findsubmatch method to extract the token from the html body.
+  matches := csrfTokenRX.FindSubmatch(body)
+  if len(matches) < 2 {
+    t.Fatal("no csrf token found in the body")
+  }
+
+  return html.UnescapeString(string(matches[1]))
 }
