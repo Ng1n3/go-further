@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 )
 
@@ -116,12 +117,131 @@ func TestShowSnippet(t *testing.T) {
 }
 
 func TestSignupUser(t *testing.T) {
-	app  := newTestApplication(t)
+	app := newTestApplication(t)
 	ts := newTestServer(t, app.routes())
 	defer ts.Close()
 
 	_, _, body := ts.get(t, "/user/signup")
 	csrfToken := extractCSRFToken(t, body)
+
+	tests := []struct {
+		name         string
+		userName     string
+		userEmail    string
+		userPassword string
+		csrfToken    string
+		wantCode     int
+		wantBody     []byte
+	}{
+		{
+			"Valid submission",
+			"Bob",
+			"bob@example.com",
+			"validPa$$word",
+			csrfToken,
+			http.StatusCreated,
+			[]byte(`{"success":true,"message":"User created successfully"}`),
+		},
+		{
+			"Empty name",
+			"",
+			"bob@example.com",
+			"validPa$$word",
+			csrfToken,
+			http.StatusBadRequest,
+			[]byte(`{"error":"Name is required"}`),
+		},
+		{
+			"Empty email",
+			"Bob",
+			"",
+			"validPa$$word",
+			csrfToken,
+			http.StatusBadRequest,
+			[]byte(`{"error":"Email is required"}`),
+		},
+		{
+			"Empty password",
+			"Bob",
+			"bob@example.com",
+			"",
+			csrfToken,
+			http.StatusBadRequest,
+			[]byte(`{"error":"Password is required"}`),
+		},
+		{
+			"Invalid email (incomplete domain)",
+			"Bob",
+			"bob@example.",
+			"validPa$$word",
+			csrfToken,
+			http.StatusBadRequest,
+			[]byte(`{"error":"Invalid email format"}`),
+		},
+		{
+			"Invalid email (missing @)",
+			"Bob",
+			"bobexample.com",
+			"validPa$$word",
+			csrfToken,
+			http.StatusBadRequest,
+			[]byte(`{"error":"Invalid email format"}`),
+		},
+		{
+			"Invalid email (missing local part)",
+			"Bob",
+			"@example.com",
+			"validPa$$word",
+			csrfToken,
+			http.StatusBadRequest,
+			[]byte(`{"error":"Invalid email format"}`),
+		},
+		{
+			"Short password",
+			"Bob",
+			"bob@example.com",
+			"pa$$word",
+			csrfToken,
+			http.StatusBadRequest,
+			[]byte(`{"error":"Password must be at least 8 characters"}`),
+		},
+		{
+			"Duplicate email",
+			"Bob",
+			"dupe@example.com",
+			"validPa$$word",
+			csrfToken,
+			http.StatusConflict,
+			[]byte(`{"error":"Email already exists"}`),
+		},
+		{
+			"Invalid CSRF Token",
+			"",
+			"",
+			"",
+			"wrongToken",
+			http.StatusBadRequest,
+			[]byte(`{"error":"Invalid CSRF token"}`),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			form := url.Values{}
+			form.Add("name", tt.userName)
+			form.Add("email", tt.userEmail)
+			form.Add("password", tt.userPassword)
+			form.Add("csrf_token", tt.csrfToken)
+
+			code, _, body := ts.postForm(t, "/user/signup", form)
+			if code != tt.wantCode {
+				t.Errorf("want %d; got %d", tt.wantCode, code)
+			}
+			if !bytes.Contains(body, tt.wantBody) {
+				t.Errorf("want body to contain %q", tt.wantBody)
+			}
+		})
+	}
 
 	t.Log(csrfToken)
 }
